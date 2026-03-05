@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    
+    <!-- PWA Meta Tags -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#1976d2" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Familias Colaboradoras" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Agenda escolar colaborativa para el municipio de Cártama, Málaga. Gestiona actividades escolares y colabora con la comunidad educativa." />
+    <meta name="keywords" content="agenda escolar, Cártama, Málaga, actividades, colaboración, familias, educación" />
+    <meta name="author" content="Familias Colaboradoras Team" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://familias-colaboradoras.cartama.es/" />
+    <meta property="og:title" content="Familias Colaboradoras - Cártama" />
+    <meta property="og:description" content="Agenda escolar colaborativa para el municipio de Cártama, Málaga" />
+    <meta property="og:image" content="/og-image.png" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://familias-colaboradoras.cartama.es/" />
+    <meta property="twitter:title" content="Familias Colaboradoras - Cártama" />
+    <meta property="twitter:description" content="Agenda escolar colaborativa para el municipio de Cártama, Málaga" />
+    <meta property="twitter:image" content="/twitter-image.png" />
+    
+    <!-- Icons -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="mask-icon" href="/masked-icon.svg" color="#1976d2" />
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link 
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" 
+      rel="stylesheet" 
+    />
+    <link 
+      href="https://fonts.googleapis.com/icon?family=Material+Icons" 
+      rel="stylesheet" 
+    />
+    
+    <title>Familias Colaboradoras - Cártama</title>
+    
+    <!-- Inline Critical CSS para mejorar rendimiento -->
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      html, body, #root {
+        height: 100%;
+        font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      }
+      
+      body {
+        background-color: #f5f5f5;
+        color: #333;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      
+      /* Loading screen styles */
+      .loading-screen {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #1976d2;
+        color: white;
+      }
+      
+      .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-top: 4px solid white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 20px;
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      
+      .loading-text {
+        font-size: 18px;
+        font-weight: 500;
+      }
+      
+      /* Hide loading screen when app loads */
+      .app-loaded .loading-screen {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Loading Screen (mostrado hasta que React cargue) -->
+    <div id="loading" class="loading-screen">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Familias Colaboradoras</div>
+      <div style="font-size: 14px; margin-top: 8px; opacity: 0.8;">Cargando...</div>
+    </div>
+    
+    <!-- Root element para React -->
+    <div id="root"></div>
+    
+    <!-- Script para ocultar loading screen cuando React monte -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Ocultar loading screen cuando React esté listo
+        const observer = new MutationObserver(function(mutations) {
+          const root = document.getElementById('root');
+          if (root && root.children.length > 0) {
+            document.getElementById('loading').style.display = 'none';
+            observer.disconnect();
+          }
+        });
+        
+        observer.observe(document.getElementById('root'), {
+          childList: true,
+          subtree: true
+        });
+        
+        // Fallback: ocultar loading después de 5 segundos
+        setTimeout(() => {
+          const loading = document.getElementById('loading');
+          if (loading) {
+            loading.style.display = 'none';
+          }
+        }, 5000);
+      });
+    </script>
+    
+    <!-- Vite script -->
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "familias-colaboradoras-frontend",
+  "main": "./worker/index.ts",
+  "compatibility_date": "2026-03-03",
+  "vars": {
+    "BACKEND_URL": "https://api.the13.eu",
+    "BACKEND_FALLBACK_URL": "https://familias-colaboradoras-backend.cartima.workers.dev"
+  },
+  "assets": {
+    "binding": "ASSETS",
+    "directory": "./dist"
+  }
+}

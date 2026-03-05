@@ -1,0 +1,25 @@
+@font-face {
+  font-family: 'SN Pro';
+  src: url('./fonts/SN_Pro/SNPro-VariableFont_wght.ttf') format('truetype');
+  font-weight: 200 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'SN Pro';
+  src: url('./fonts/SN_Pro/SNPro-Italic-VariableFont_wght.ttf') format('truetype');
+  font-weight: 200 900;
+  font-style: italic;
+}
+
+/* Ocultar barras de desplazamiento globalmente para imitar experiencia nativa */
+* {
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* IE and Edge */
+}
+
+*::-webkit-scrollbar {
+  display: none !important; /* Chrome, Safari, Opera */
+  width: 0 !important;
+  height: 0 !important;
+}
