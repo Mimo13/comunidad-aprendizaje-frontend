@@ -17,6 +17,16 @@
       "head_sampling_rate": 1
     }
   },
+  "routes": [
+    {
+      "pattern": "the13.eu/*",
+      "zone_name": "the13.eu"
+    },
+    {
+      "pattern": "www.the13.eu/*",
+      "zone_name": "the13.eu"
+    }
+  ],
   "vars": {
     "BACKEND_URL": "https://api.the13.eu",
     "BACKEND_FALLBACK_URL": "https://familias-colaboradoras-backend.cartima.workers.dev"

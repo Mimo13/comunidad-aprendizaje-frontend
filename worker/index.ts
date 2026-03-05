@@ -14,12 +14,27 @@ const corsHeaders = (origin: string | null) => ({
 const isRetriableGatewayStatus = (status: number): boolean =>
   [522, 523, 524, 525, 526].includes(status);
 
+const canHaveBody = (method: string): boolean => !['GET', 'HEAD'].includes(method.toUpperCase());
+
 const fetchWithFallback = async (
   primaryUrl: string,
   request: Request,
+  bodyBytes?: ArrayBuffer,
   env: Env
 ): Promise<Response> => {
-  const primaryReq = new Request(primaryUrl, request);
+  const buildRequest = (url: string): Request => {
+    const init: RequestInit = {
+      method: request.method,
+      headers: request.headers,
+      redirect: request.redirect,
+    };
+    if (canHaveBody(request.method) && bodyBytes !== undefined) {
+      init.body = bodyBytes;
+    }
+    return new Request(url, init);
+  };
+
+  const primaryReq = buildRequest(primaryUrl);
   try {
     const primaryResp = await fetch(primaryReq);
     if (!env.BACKEND_FALLBACK_URL || !isRetriableGatewayStatus(primaryResp.status)) {
@@ -33,7 +48,7 @@ const fetchWithFallback = async (
   const primaryParsed = new URL(primaryUrl);
   fallbackBase.pathname = primaryParsed.pathname;
   fallbackBase.search = primaryParsed.search;
-  const fallbackReq = new Request(fallbackBase.toString(), request);
+  const fallbackReq = buildRequest(fallbackBase.toString());
   return fetch(fallbackReq);
 };
 
@@ -56,12 +71,13 @@ export default {
 
     if (url.pathname.startsWith('/uploads/')) {
       const target = `${env.BACKEND_URL}${url.pathname}${url.search || ''}`;
+      const bodyBytes = request.method === 'GET' || request.method === 'HEAD' ? undefined : await request.arrayBuffer();
       const proxyReq = new Request(target, {
         method: request.method,
-        body: request.method === 'GET' || request.method === 'HEAD' ? undefined : await request.arrayBuffer(),
+        body: bodyBytes,
         headers: request.headers,
       });
-      const resp = await fetchWithFallback(target, proxyReq, env);
+      const resp = await fetchWithFallback(target, proxyReq, bodyBytes, env);
       const respHeaders = new Headers(resp.headers);
       Object.entries(corsHeaders(origin)).forEach(([k, v]) => respHeaders.set(k, v));
       return new Response(resp.body, { status: resp.status, headers: respHeaders });
@@ -75,16 +91,17 @@ export default {
       const headers = new Headers(request.headers);
       headers.delete('host');
       headers.delete('accept-encoding');
+      const bodyBytes = request.method === 'GET' || request.method === 'HEAD' ? undefined : await request.arrayBuffer();
 
       const targetUrl = target.toString();
       const proxyReq = new Request(targetUrl, {
         method: request.method,
         headers,
-        body: request.method === 'GET' || request.method === 'HEAD' ? undefined : await request.arrayBuffer(),
+        body: bodyBytes,
         redirect: 'follow',
       });
 
-      const resp = await fetchWithFallback(targetUrl, proxyReq, env);
+      const resp = await fetchWithFallback(targetUrl, proxyReq, bodyBytes, env);
       const respHeaders = new Headers(resp.headers);
       Object.entries(corsHeaders(origin)).forEach(([k, v]) => respHeaders.set(k, v));
       return new Response(resp.body, { status: resp.status, headers: respHeaders });

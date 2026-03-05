@@ -70,6 +70,10 @@ const BottomMenu = ({ unreadCount = 0 }: BottomMenuProps) => {
   // Filtrar items ocultos
   const visibleItems = useMemo(() => menuItems.filter(item => !item.hidden), [canAccess]);
 
+  if (visibleItems.length === 0) {
+    return null;
+  }
+
   // Determinar índice activo basado en la ruta actual o acción reciente
   useEffect(() => {
     const currentPath = location.pathname;
@@ -99,7 +103,8 @@ const BottomMenu = ({ unreadCount = 0 }: BottomMenuProps) => {
   // Calcular el path del SVG
   // La curva es un "hueco" hacia abajo donde se asienta la bola
   const getPath = (index: number) => {
-    const center = (index * itemWidth) + (itemWidth / 2);
+    const safeIndex = Math.min(Math.max(index, 0), visibleItems.length - 1);
+    const center = (safeIndex * itemWidth) + (itemWidth / 2);
     const startX = center - (curveWidth / 2);
     const endX = center + (curveWidth / 2);
     
