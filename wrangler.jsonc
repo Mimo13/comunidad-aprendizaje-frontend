@@ -2,15 +2,6 @@
   "name": "familias-colaboradoras-frontend",
   "main": "./worker/index.ts",
   "compatibility_date": "2026-03-03",
-  "vars": {
-    "BACKEND_URL": "https://api.the13.eu",
-    "BACKEND_FALLBACK_URL": "https://familias-colaboradoras-backend.cartima.workers.dev"
-  },
-  "assets": {
-    "binding": "ASSETS",
-    "directory": "./dist"
-  },
-{
   "observability": {
     "enabled": false,
     "head_sampling_rate": 1,
@@ -20,11 +11,18 @@
       "persist": true,
       "invocation_logs": true
     },
-    "traces": {
-      "enabled": false,
-      "persist": true,
-      "head_sampling_rate": 1
-    }
+  "traces": {
+    "enabled": false,
+    "persist": true,
+    "head_sampling_rate": 1
   }
-}
+},
+  "vars": {
+    "BACKEND_URL": "https://api.the13.eu",
+    "BACKEND_FALLBACK_URL": "https://familias-colaboradoras-backend.cartima.workers.dev"
+  },
+  "assets": {
+    "binding": "ASSETS",
+    "directory": "./dist"
+  }
 }
