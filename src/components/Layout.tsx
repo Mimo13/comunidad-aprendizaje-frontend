@@ -338,7 +338,7 @@ const Layout = () => {
       </Menu>
       
       <Container component="main" sx={{ mt: 4, mb: 12, flexGrow: 1, position: 'relative', overflowX: 'hidden' }}>
-        <AnimatePresence mode='popLayout' custom={direction}>
+        <AnimatePresence mode='wait' custom={direction}>
           <motion.div
             key={location.pathname}
             custom={direction}
@@ -346,7 +346,7 @@ const Layout = () => {
             initial="initial"
             animate="animate"
             exit="exit"
-            style={{ width: '100%' }}
+            style={{ width: '100%', position: 'relative' }}
           >
             {currentOutlet}
           </motion.div>

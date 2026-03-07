@@ -26,55 +26,55 @@ const BottomMenu = ({ unreadCount = 0 }: BottomMenuProps) => {
   const [activeIndex, setActiveIndex] = useState(0);
 
   // Definir las opciones del menú
-  const menuItems = [
-    { 
-      id: 'activities', 
+  const menuItems = useMemo(() => [
+    {
+      id: 'activities',
       label: 'Actividades',
-      icon: <EventIcon />, 
-      path: '/activities', 
+      icon: <EventIcon />,
+      path: '/activities',
       action: () => navigate('/activities'),
       hidden: !canAccess('ACTIVITIES')
     },
-    { 
-      id: 'notifications', 
+    {
+      id: 'notifications',
       label: 'Mensajes',
-      icon: <NotificationsIcon />, 
+      icon: <NotificationsIcon />,
       path: '/notifications',
       action: () => navigate('/notifications'),
       badge: unreadCount
     },
-    { 
-      id: 'home', 
+    {
+      id: 'home',
       label: 'Inicio',
-      icon: <HomeIcon />, 
-      path: '/dashboard', 
-      action: () => navigate('/dashboard') 
+      icon: <HomeIcon />,
+      path: '/dashboard',
+      action: () => navigate('/dashboard')
     },
-    { 
-      id: 'settings', 
+    {
+      id: 'settings',
       label: 'Ajustes',
-      icon: <SettingsIcon />, 
+      icon: <SettingsIcon />,
       path: '/settings',
       action: () => navigate('/settings'),
       hidden: !(canAccess('USERS') || canAccess('SUBJECTS') || canAccess('HOLIDAYS') || canAccess('CLASSROOMS') || canAccess('ROLES'))
     },
-    { 
-      id: 'profile', 
+    {
+      id: 'profile',
       label: 'Perfil',
-      icon: <PersonIcon />, 
+      icon: <PersonIcon />,
       path: '/profile',
       action: () => navigate('/profile')
     }
-  ];
+  ], [canAccess, navigate, unreadCount]);
 
   // Filtrar items ocultos
-  const visibleItems = useMemo(() => menuItems.filter(item => !item.hidden), [canAccess]);
+  const visibleItems = useMemo(() => menuItems.filter(item => !item.hidden), [menuItems]);
 
   if (visibleItems.length === 0) {
     return null;
   }
 
-  // Determinar índice activo basado en la ruta actual o acción reciente
+  // Determinar índice activo basado solo en la ruta actual
   useEffect(() => {
     const currentPath = location.pathname;
     const index = visibleItems.findIndex(item => item.path && currentPath.startsWith(item.path));
@@ -83,9 +83,8 @@ const BottomMenu = ({ unreadCount = 0 }: BottomMenuProps) => {
     }
   }, [location.pathname, visibleItems]);
 
-  const handleItemClick = (index: number, item: any, event: React.MouseEvent<HTMLElement>) => {
-    setActiveIndex(index);
-    item.action(event);
+  const handleItemClick = (item: any) => {
+    item.action();
   };
 
   // Configuración de dimensiones para SVG
@@ -249,7 +248,7 @@ const BottomMenu = ({ unreadCount = 0 }: BottomMenuProps) => {
                     cursor: 'pointer',
                     // Eliminado padding condicional para centrado perfecto
                   }}
-                  onClick={(e) => handleItemClick(index, item, e as any)}
+                  onClick={() => handleItemClick(item)}
                 >
                   {/* Texto o icono inactivo */}
                   <motion.div
