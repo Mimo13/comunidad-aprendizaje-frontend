@@ -485,10 +485,10 @@ export const roleService = {
   getAllRoles: (): Promise<ApiResponse<any[]>> =>
     apiClient.get('/roles').then(res => res.data),
 
-  createRole: (data: { name: string; description?: string; color?: string }): Promise<ApiResponse<any>> =>
+  createRole: (data: { name: string; description?: string; color?: string; permissions?: string[] }): Promise<ApiResponse<any>> =>
     apiClient.post('/roles', data).then(res => res.data),
 
-  updateRole: (id: string, data: { name?: string; description?: string; color?: string }): Promise<ApiResponse<any>> =>
+  updateRole: (id: string, data: { name?: string; description?: string; color?: string; permissions?: string[] }): Promise<ApiResponse<any>> =>
     apiClient.put(`/roles/${id}`, data).then(res => res.data),
 
   deleteRole: (id: string): Promise<ApiResponse> =>

@@ -73,6 +73,9 @@ interface Role {
   };
 }
 
+const normalizePermissions = (permissions: string[] = []) =>
+  [...new Set(permissions.map((permission) => String(permission).toUpperCase()))];
+
 const AdminRolesPage = () => {
   const navigate = useNavigate();
   const [roles, setRoles] = useState<Role[]>([]);
@@ -123,7 +126,7 @@ const AdminRolesPage = () => {
         name: role.name, 
         description: role.description || '', 
         color: role.color || '#1976d2',
-        permissions: role.permissions || []
+        permissions: normalizePermissions(role.permissions || [])
       });
     } else {
       setEditingRole(null);
@@ -140,11 +143,12 @@ const AdminRolesPage = () => {
 
   const handleTogglePermission = (moduleKey: string) => {
     setFormData(prev => {
-      const currentPermissions = prev.permissions || [];
-      if (currentPermissions.includes(moduleKey)) {
-        return { ...prev, permissions: currentPermissions.filter(p => p !== moduleKey) };
+      const normalizedKey = moduleKey.toUpperCase();
+      const currentPermissions = normalizePermissions(prev.permissions || []);
+      if (currentPermissions.includes(normalizedKey)) {
+        return { ...prev, permissions: currentPermissions.filter((p) => p !== normalizedKey) };
       } else {
-        return { ...prev, permissions: [...currentPermissions, moduleKey] };
+        return { ...prev, permissions: [...currentPermissions, normalizedKey] };
       }
     });
   };
@@ -157,10 +161,16 @@ const AdminRolesPage = () => {
       }
 
       if (editingRole) {
-        await roleService.updateRole(editingRole.id, formData);
+        await roleService.updateRole(editingRole.id, {
+          ...formData,
+          permissions: normalizePermissions(formData.permissions)
+        });
         enqueueSnackbar('Perfil actualizado', { variant: 'success' });
       } else {
-        await roleService.createRole(formData);
+        await roleService.createRole({
+          ...formData,
+          permissions: normalizePermissions(formData.permissions)
+        });
         enqueueSnackbar('Perfil creado', { variant: 'success' });
       }
       handleClose();
@@ -413,7 +423,7 @@ const AdminRolesPage = () => {
               <Grid container spacing={2}>
                 {APP_MODULES.map((module) => {
                   const isAdmin = formData.name === 'ADMIN';
-                  const isChecked = isAdmin || formData.permissions.includes(module.key);
+                  const isChecked = isAdmin || normalizePermissions(formData.permissions).includes(module.key.toUpperCase());
                   
                   return (
                     <Grid item xs={12} sm={6} md={4} key={module.key}>
