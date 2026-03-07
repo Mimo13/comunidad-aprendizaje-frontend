@@ -501,6 +501,58 @@ export const timeSlotService = {
     apiClient.get('/timeslots').then(res => res.data),
 };
 
+// ===== SERVICIOS E2EE =====
+export const e2eeService = {
+  registerDevice: (data: {
+    deviceId: string;
+    platform: 'web' | 'ios' | 'android';
+    deviceName?: string;
+    publicKey: string;
+    keyVersion: 'e2ee_v1';
+  }): Promise<ApiResponse<any>> =>
+    apiClient.post('/e2ee/devices', data).then(res => res.data),
+
+  listDevices: (): Promise<ApiResponse<any[]>> =>
+    apiClient.get('/e2ee/devices').then(res => res.data),
+
+  revokeDevice: (deviceId: string): Promise<ApiResponse> =>
+    apiClient.post(`/e2ee/devices/${deviceId}/revoke`).then(res => res.data),
+
+  getPublicKeys: (): Promise<ApiResponse<Array<{ deviceId: string; publicKey: string; keyVersion: string }>>> =>
+    apiClient.get('/e2ee/devices/public-keys').then(res => res.data),
+
+  upsertContentKeys: (data: {
+    contentType: string;
+    contentId: string;
+    keyVersion?: 'e2ee_v1';
+    wrappedKeys: Array<{
+      deviceId: string;
+      wrappedDek: string;
+      wrapAlg: string;
+      keyVersion?: 'e2ee_v1';
+    }>;
+  }): Promise<ApiResponse<{ contentKeyId: string; wrappedKeysStored: number }>> =>
+    apiClient.post('/e2ee/content-keys', data).then(res => res.data),
+
+  getWrappedKey: (contentType: string, contentId: string, deviceId: string): Promise<ApiResponse<{
+    contentKeyId: string;
+    keyVersion: string;
+    wrapAlg: string;
+    wrappedDek: string;
+  }>> =>
+    apiClient.get(`/e2ee/content-keys/${encodeURIComponent(contentType)}/${encodeURIComponent(contentId)}`, {
+      params: { deviceId }
+    }).then(res => res.data),
+
+  rewrapContentKey: (contentKeyId: string, data: {
+    targetDeviceId: string;
+    wrappedDek: string;
+    wrapAlg: string;
+    keyVersion?: 'e2ee_v1';
+  }): Promise<ApiResponse> =>
+    apiClient.post(`/e2ee/content-keys/${contentKeyId}/rewrap`, data).then(res => res.data),
+};
+
 // ===== UTILIDADES =====
 
 /**
