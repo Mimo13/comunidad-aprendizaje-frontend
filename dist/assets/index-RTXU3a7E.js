@@ -1,2 +1,0 @@
-var E=(A=>(A.ADMIN="ADMIN",A.DIRECTIVA="DIRECTIVA",A.PROFESOR="PROFESOR",A.AMPA="AMPA",A.FAMILIA="FAMILIA",A))(E||{}),C=(A=>(A.ACTIVE="ACTIVE",A.CANCELLED="CANCELLED",A.COMPLETED="COMPLETED",A))(C||{});const I={ACTIVE:"Activa",CANCELLED:"Cancelada",COMPLETED:"Completada"};export{C as A,E as U,I as a};
-//# sourceMappingURL=index-RTXU3a7E.js.map
