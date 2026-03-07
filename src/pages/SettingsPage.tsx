@@ -61,7 +61,7 @@ const SettingsPage = () => {
       description: 'Grupos y niveles escolares',
       icon: <GroupIcon fontSize="large" />,
       path: '/admin/classes',
-      permission: 'CLASSROOMS',
+      permission: 'CLASSES',
       color: theme.palette.warning.dark
     },
     {
@@ -84,7 +84,12 @@ const SettingsPage = () => {
     }
   ];
 
-  const availableOptions = adminOptions.filter(opt => canAccess(opt.permission));
+  const availableOptions = adminOptions.filter((opt) => {
+    if (opt.id === 'classes') {
+      return canAccess('CLASSES') || canAccess('CLASSROOMS');
+    }
+    return canAccess(opt.permission);
+  });
 
   return (
     <Box>
