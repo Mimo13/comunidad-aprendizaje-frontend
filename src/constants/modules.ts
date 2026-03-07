@@ -13,5 +13,7 @@ export const APP_MODULES: AppModule[] = [
   { key: 'CLASSES', label: 'Clases', description: 'Catálogo de grupos y clases escolares' },
   { key: 'TIME_SLOTS', label: 'Horarios', description: 'Configuración de tramos horarios' },
   { key: 'HOLIDAYS', label: 'Festivos', description: 'Calendario de días festivos' },
+  { key: 'ACTIVITY_HEATMAP_WIDGET', label: 'Widget Actividad Curso', description: 'Visualización de calor de actividad en el panel de inicio' },
+  { key: 'ACTIVITY_CHART_WIDGET', label: 'Widget Evolución Actividades', description: 'Visualización de gráfica de evolución en el panel de inicio' },
   { key: 'AVAILABILITY_WIDGET', label: 'Widget Disponibilidad', description: 'Visualización de disponibilidad en el panel de inicio' },
 ];

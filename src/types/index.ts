@@ -142,6 +142,29 @@ export interface AvailabilityDashboardOverview {
   byDay: AvailabilityDashboardDaySummary[];
 }
 
+export interface AvailabilityDashboardUserSlot {
+  id: string;
+  dayOfWeek: DayOfWeek;
+  startTime: string;
+  endTime: string;
+  recurrenceType: AvailabilityRecurrenceType;
+  weekOfMonth?: number | null;
+  repeatInterval: number;
+}
+
+export interface AvailabilityDashboardUserDetail {
+  userId: string;
+  name: string;
+  email: string;
+  role?: string | null;
+  slots: AvailabilityDashboardUserSlot[];
+}
+
+export interface AvailabilityDashboardDetail {
+  totalUsers: number;
+  users: AvailabilityDashboardUserDetail[];
+}
+
 // ===== INTERFACES DE NOTIFICACIÓN =====
 export interface Notification {
   id: string;

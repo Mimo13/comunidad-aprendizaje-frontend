@@ -1,13 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, Box, Chip, LinearProgress, Paper, Typography } from '@mui/material';
+import { Alert, Box, Button, Chip, LinearProgress, Paper, Typography } from '@mui/material';
 import { availabilityService } from '@/services/api';
 import {
+  AvailabilityDashboardDetail,
   AvailabilityDashboardDaySummary,
   AvailabilityDashboardOverview,
   DayOfWeek,
   DAY_OF_WEEK_LABELS,
 } from '@/types';
 import { SkeletonWidget } from '@/components/SkeletonLoader';
+import AvailabilityDetailDialog from '@/components/AvailabilityDetailDialog';
 
 const DAY_ORDER: DayOfWeek[] = [
   DayOfWeek.MONDAY,
@@ -23,6 +25,10 @@ const AvailabilityOverviewWidget = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [overview, setOverview] = useState<AvailabilityDashboardOverview | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [detailError, setDetailError] = useState<string | null>(null);
+  const [detail, setDetail] = useState<AvailabilityDashboardDetail | null>(null);
 
   useEffect(() => {
     const loadOverview = async () => {
@@ -62,6 +68,25 @@ const AvailabilityOverviewWidget = () => {
 
   const maxUsersCount = Math.max(1, ...byDay.map((item) => item.usersCount));
 
+  const openDetail = async () => {
+    setDetailOpen(true);
+    if (detail || detailLoading) return;
+    try {
+      setDetailLoading(true);
+      setDetailError(null);
+      const response = await availabilityService.getDashboardDetail();
+      if (response.success && response.data) {
+        setDetail(response.data);
+      } else {
+        setDetailError(response.message || 'No se pudo cargar el detalle de disponibilidad');
+      }
+    } catch (err: any) {
+      setDetailError(err?.response?.data?.message || err?.message || 'No se pudo cargar el detalle de disponibilidad');
+    } finally {
+      setDetailLoading(false);
+    }
+  };
+
   if (loading) return <SkeletonWidget height={280} />;
 
   return (
@@ -82,6 +107,9 @@ const AvailabilityOverviewWidget = () => {
           <Chip size="small" variant="outlined" label={`${overview?.totals.totalSlots || 0} tramos activos`} />
           <Chip size="small" variant="outlined" label={`Semanal: ${overview?.totals.weeklySlots || 0}`} />
           <Chip size="small" variant="outlined" label={`Mensual: ${overview?.totals.monthlySlots || 0}`} />
+          <Button size="small" variant="text" onClick={openDetail}>
+            Ver disponibilidad completa
+          </Button>
         </Box>
       </Box>
 
@@ -113,6 +141,14 @@ const AvailabilityOverviewWidget = () => {
           );
         })}
       </Box>
+
+      {detailError ? <Alert severity="warning" sx={{ mt: 2 }}>{detailError}</Alert> : null}
+      <AvailabilityDetailDialog
+        open={detailOpen}
+        onClose={() => setDetailOpen(false)}
+        users={detail?.users || []}
+      />
+      {detailLoading ? <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>Cargando detalle...</Typography> : null}
     </Paper>
   );
 };

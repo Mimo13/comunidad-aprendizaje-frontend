@@ -16,6 +16,8 @@ const DashboardPage = () => {
   const navigate = useNavigate();
   const [showNotificationPrompt, setShowNotificationPrompt] = useState(false);
   const canViewAvailabilityWidget = canAccess('AVAILABILITY_WIDGET');
+  const canViewHeatmapWidget = canAccess('ACTIVITY_HEATMAP_WIDGET');
+  const canViewActivityChartWidget = canAccess('ACTIVITY_CHART_WIDGET');
 
   useEffect(() => {
     // Comprobar si las notificaciones están activas
@@ -92,9 +94,9 @@ const DashboardPage = () => {
         {/* Stats Widget */}
         <Grid item xs={12} md={7} lg={8}>
           <Box display="flex" flexDirection="column" gap={3}>
-            <ActivityHeatmapWidget />
+            {canViewHeatmapWidget && <ActivityHeatmapWidget />}
             {canViewAvailabilityWidget && <AvailabilityOverviewWidget />}
-            <ActivityChartWidget />
+            {canViewActivityChartWidget && <ActivityChartWidget />}
           </Box>
         </Grid>
       </Grid>

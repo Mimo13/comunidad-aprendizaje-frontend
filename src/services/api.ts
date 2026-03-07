@@ -16,7 +16,8 @@ import {
   ChangePasswordForm,
   AvailabilityForm,
   FileAttachment,
-  AvailabilityDashboardOverview
+  AvailabilityDashboardOverview,
+  AvailabilityDashboardDetail
 } from '@/types';
 
 // Configuración base de la API
@@ -384,6 +385,12 @@ export const availabilityService = {
    */
   getDashboardOverview: (): Promise<ApiResponse<AvailabilityDashboardOverview>> =>
     apiClient.get('/availability/dashboard-overview').then(res => res.data),
+
+  /**
+   * Obtener detalle completo de disponibilidad para dashboard
+   */
+  getDashboardDetail: (): Promise<ApiResponse<AvailabilityDashboardDetail>> =>
+    apiClient.get('/availability/dashboard-detail').then(res => res.data),
 };
 
 // ===== SERVICIOS DE DASHBOARD/ESTADÍSTICAS =====
