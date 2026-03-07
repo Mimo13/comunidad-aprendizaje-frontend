@@ -16,6 +16,7 @@ import ActivityDetailsModal from '@/components/ActivityDetailsModal';
 import ActivityFormModal from '@/components/ActivityFormModal';
 import { SkeletonTable } from '@/components/SkeletonLoader';
 import BulkCalendarExport from '@/components/BulkCalendarExport';
+import { activityDescriptionE2ee } from '@/services/e2ee/activityDescriptionE2ee';
 
 const ActivitiesPage = () => {
   // ===== Estado para creación/edición =====
@@ -142,7 +143,8 @@ const ActivitiesPage = () => {
 
       const res = await activityService.getActivities(queryFilters);
       if (res.success && res.data) {
-        setActivities(res.data.activities || []);
+        const decryptedActivities = await activityDescriptionE2ee.decryptActivities(res.data.activities || []);
+        setActivities(decryptedActivities);
         setPagination(res.data.pagination);
       } else {
         setActivities([]);

@@ -17,6 +17,7 @@ import { DatePicker } from '@mui/x-date-pickers';
 import dayjs, { Dayjs } from 'dayjs';
 import { ActivityForm, ActivityWithEnrollments } from '@/types';
 import { activityService } from '@/services/api';
+import { activityDescriptionE2ee } from '@/services/e2ee/activityDescriptionE2ee';
 import type { SelectChangeEvent } from '@mui/material/Select';
 
 interface ActivityFormModalProps {
@@ -138,11 +139,13 @@ const ActivityFormModal: React.FC<ActivityFormModalProps> = ({
       const startDateTime = dayjs(`${dateStr}T${form.startTime}`).toISOString();
       const endDateTime = dayjs(`${dateStr}T${form.endTime}`).toISOString();
 
+      const encryptedDescription = await activityDescriptionE2ee.prepareEncryptedDescription(form.description?.trim());
+
       const payload: ActivityForm = {
         ...form,
         date: startDateTime,
         endDate: endDateTime,
-        description: form.description?.trim() || undefined,
+        description: encryptedDescription?.encryptedDescription || (form.description?.trim() || undefined),
       };
 
       let res;
@@ -150,6 +153,10 @@ const ActivityFormModal: React.FC<ActivityFormModalProps> = ({
         res = await activityService.updateActivity(activityToEdit.id, payload);
       } else {
         res = await activityService.createActivity(payload);
+      }
+
+      if (res.success && encryptedDescription?.wrappedKeys?.length && res.data?.id) {
+        await activityDescriptionE2ee.syncWrappedKeys(res.data.id, encryptedDescription.wrappedKeys);
       }
 
       if (res.success) {
