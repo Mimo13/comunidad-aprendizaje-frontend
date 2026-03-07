@@ -174,7 +174,19 @@ export const usePermissions = () => {
   const canAccess = (moduleKey: string) => {
     if (!user) return false;
     if (user.role === 'ADMIN') return true;
-    return user.permissions?.includes(moduleKey) || false;
+    const normalizedPermissions = (user.permissions || []).map((permission) => String(permission).toUpperCase());
+    const target = moduleKey.toUpperCase();
+    if (normalizedPermissions.includes(target)) return true;
+
+    // Compatibilidad legacy: DASHBOARD habilita los widgets del panel de inicio.
+    if (
+      normalizedPermissions.includes('DASHBOARD') &&
+      ['ACTIVITY_HEATMAP_WIDGET', 'ACTIVITY_CHART_WIDGET', 'AVAILABILITY_WIDGET'].includes(target)
+    ) {
+      return true;
+    }
+
+    return false;
   };
 
   const canCreateActivities = () => 
