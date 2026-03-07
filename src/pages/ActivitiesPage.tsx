@@ -143,9 +143,13 @@ const ActivitiesPage = () => {
 
       const res = await activityService.getActivities(queryFilters);
       if (res.success && res.data) {
-        const decryptedActivities = await activityDescriptionE2ee.decryptActivities(res.data.activities || []);
+        const serverActivities = res.data.activities || [];
+        const decryptedActivities = await activityDescriptionE2ee.decryptActivities(serverActivities);
         setActivities(decryptedActivities);
         setPagination(res.data.pagination);
+
+        // Run legacy migration in background to progressively eliminate plaintext descriptions.
+        void activityDescriptionE2ee.migrateLegacyActivities(serverActivities);
       } else {
         setActivities([]);
         setPagination(null);

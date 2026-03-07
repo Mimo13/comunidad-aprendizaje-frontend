@@ -1,5 +1,5 @@
 import { ActivityWithEnrollments } from '@/types';
-import { e2eeService } from '@/services/api';
+import { activityService, e2eeService } from '@/services/api';
 import { e2eeDeviceLifecycle } from './deviceLifecycle';
 import { webKeyManager } from './webKeyManager';
 
@@ -36,6 +36,27 @@ type PreparedEncryptedDescription = {
 };
 
 const plaintextCache = new Map<string, string>();
+const legacyMigrationInFlight = new Set<string>();
+const legacyMigrationAttempts = new Map<string, number>();
+const MAX_MIGRATION_ATTEMPTS_PER_ACTIVITY = 2;
+
+const shouldAttemptLegacyMigration = (activity: ActivityWithEnrollments): boolean => {
+  const description = activity.description?.trim();
+  if (!description) {
+    return false;
+  }
+
+  if (isEncryptedEnvelope(description)) {
+    return false;
+  }
+
+  if (legacyMigrationInFlight.has(activity.id)) {
+    return false;
+  }
+
+  const attempts = legacyMigrationAttempts.get(activity.id) || 0;
+  return attempts < MAX_MIGRATION_ATTEMPTS_PER_ACTIVITY;
+};
 
 const bufferToBase64 = (buffer: ArrayBuffer): string => {
   const bytes = new Uint8Array(buffer);
@@ -346,5 +367,49 @@ export const activityDescriptionE2ee = {
     );
 
     return decrypted;
+  },
+
+  async migrateLegacyActivityDescription(activity: ActivityWithEnrollments): Promise<boolean> {
+    if (!shouldAttemptLegacyMigration(activity)) {
+      return false;
+    }
+
+    legacyMigrationInFlight.add(activity.id);
+
+    try {
+      const prepared = await this.prepareEncryptedDescription(activity.description);
+      if (!prepared?.encryptedDescription) {
+        return false;
+      }
+
+      const updateResponse = await activityService.updateActivity(activity.id, {
+        description: prepared.encryptedDescription,
+      });
+
+      if (!updateResponse.success || !updateResponse.data?.id) {
+        return false;
+      }
+
+      await this.syncWrappedKeys(updateResponse.data.id, prepared.wrappedKeys);
+
+      const cacheTimestamp = updateResponse.data.updatedAt || activity.updatedAt;
+      const cacheKey = `${activity.id}:${cacheTimestamp}`;
+      if (activity.description?.trim()) {
+        plaintextCache.set(cacheKey, activity.description.trim());
+      }
+
+      legacyMigrationAttempts.delete(activity.id);
+      return true;
+    } catch {
+      const attempts = legacyMigrationAttempts.get(activity.id) || 0;
+      legacyMigrationAttempts.set(activity.id, attempts + 1);
+      return false;
+    } finally {
+      legacyMigrationInFlight.delete(activity.id);
+    }
+  },
+
+  async migrateLegacyActivities(activities: ActivityWithEnrollments[]): Promise<void> {
+    await Promise.all(activities.map((activity) => this.migrateLegacyActivityDescription(activity)));
   },
 };
