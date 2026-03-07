@@ -124,6 +124,24 @@ export interface Availability {
   userId: string;
 }
 
+export interface AvailabilityDashboardDaySummary {
+  dayOfWeek: DayOfWeek;
+  slotsCount: number;
+  usersCount: number;
+  weeklySlots: number;
+  monthlySlots: number;
+}
+
+export interface AvailabilityDashboardOverview {
+  totals: {
+    totalSlots: number;
+    totalUsers: number;
+    weeklySlots: number;
+    monthlySlots: number;
+  };
+  byDay: AvailabilityDashboardDaySummary[];
+}
+
 // ===== INTERFACES DE NOTIFICACIÓN =====
 export interface Notification {
   id: string;

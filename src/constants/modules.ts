@@ -13,4 +13,5 @@ export const APP_MODULES: AppModule[] = [
   { key: 'CLASSES', label: 'Clases', description: 'Catálogo de grupos y clases escolares' },
   { key: 'TIME_SLOTS', label: 'Horarios', description: 'Configuración de tramos horarios' },
   { key: 'HOLIDAYS', label: 'Festivos', description: 'Calendario de días festivos' },
+  { key: 'AVAILABILITY_WIDGET', label: 'Widget Disponibilidad', description: 'Visualización de disponibilidad en el panel de inicio' },
 ];

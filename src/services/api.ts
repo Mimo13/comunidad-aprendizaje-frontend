@@ -15,7 +15,8 @@ import {
   ProfileForm,
   ChangePasswordForm,
   AvailabilityForm,
-  FileAttachment
+  FileAttachment,
+  AvailabilityDashboardOverview
 } from '@/types';
 
 // Configuración base de la API
@@ -377,6 +378,12 @@ export const availabilityService = {
    */
   deleteAvailability: (id: string): Promise<ApiResponse> =>
     apiClient.delete(`/availability/${id}`).then(res => res.data),
+
+  /**
+   * Obtener resumen de disponibilidad para dashboard
+   */
+  getDashboardOverview: (): Promise<ApiResponse<AvailabilityDashboardOverview>> =>
+    apiClient.get('/availability/dashboard-overview').then(res => res.data),
 };
 
 // ===== SERVICIOS DE DASHBOARD/ESTADÍSTICAS =====

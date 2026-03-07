@@ -1,17 +1,21 @@
 import { Typography, Box, Grid, Paper, Button } from '@mui/material';
 import { NotificationsActive } from '@mui/icons-material';
 import { useAuthStore } from '@/stores/authStore';
+import { usePermissions } from '@/stores/authStore';
 import ScheduleWidget from '@/components/ScheduleWidget';
 import ActivityHeatmapWidget from '@/components/ActivityHeatmapWidget';
 import ActivityChartWidget from '@/components/ActivityChartWidget';
+import AvailabilityOverviewWidget from '@/components/AvailabilityOverviewWidget';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { pushNotificationService } from '@/services/notificationService';
 
 const DashboardPage = () => {
   const { user } = useAuthStore();
+  const { canAccess } = usePermissions();
   const navigate = useNavigate();
   const [showNotificationPrompt, setShowNotificationPrompt] = useState(false);
+  const canViewAvailabilityWidget = canAccess('AVAILABILITY_WIDGET');
 
   useEffect(() => {
     // Comprobar si las notificaciones están activas
@@ -89,6 +93,7 @@ const DashboardPage = () => {
         <Grid item xs={12} md={7} lg={8}>
           <Box display="flex" flexDirection="column" gap={3}>
             <ActivityHeatmapWidget />
+            {canViewAvailabilityWidget && <AvailabilityOverviewWidget />}
             <ActivityChartWidget />
           </Box>
         </Grid>
