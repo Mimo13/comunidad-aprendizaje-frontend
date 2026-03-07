@@ -23,6 +23,11 @@ export enum DayOfWeek {
   SATURDAY = 'SATURDAY'
 }
 
+export enum AvailabilityRecurrenceType {
+  WEEKLY = 'WEEKLY',
+  MONTHLY = 'MONTHLY'
+}
+
 export enum NotificationType {
   ONE_DAY_BEFORE = 'ONE_DAY_BEFORE',
   ONE_HOUR_BEFORE = 'ONE_HOUR_BEFORE',
@@ -111,6 +116,9 @@ export interface Availability {
   startTime: string;
   endTime: string;
   isActive: boolean;
+  recurrenceType: AvailabilityRecurrenceType;
+  weekOfMonth?: number | null;
+  repeatInterval: number;
   createdAt: string;
   updatedAt: string;
   userId: string;
@@ -193,6 +201,9 @@ export interface AvailabilityForm {
   startTime: string;
   endTime: string;
   isActive: boolean;
+  recurrenceType: AvailabilityRecurrenceType;
+  weekOfMonth?: number | null;
+  repeatInterval: number;
 }
 
 export interface ProfileForm {

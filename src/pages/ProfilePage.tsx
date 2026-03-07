@@ -25,7 +25,7 @@ import NotificationSettings from '@/components/NotificationSettings';
 import { useTheme } from '@mui/material/styles';
 import { useMediaQuery } from '@mui/material';
 import { availabilityService } from '@/services/api';
-import { Availability, DayOfWeek, DAY_OF_WEEK_LABELS } from '@/types';
+import { Availability, AvailabilityRecurrenceType, DayOfWeek, DAY_OF_WEEK_LABELS } from '@/types';
 
 type AvailabilityPattern = 'single' | 'weekdays' | 'all-days';
 
@@ -45,6 +45,14 @@ const ALL_DAY_VALUES: DayOfWeek[] = [
   DayOfWeek.FRIDAY,
   DayOfWeek.SATURDAY,
   DayOfWeek.SUNDAY,
+];
+
+const WEEK_OF_MONTH_OPTIONS = [
+  { value: 1, label: 'Primera semana' },
+  { value: 2, label: 'Segunda semana' },
+  { value: 3, label: 'Tercera semana' },
+  { value: 4, label: 'Cuarta semana' },
+  { value: 5, label: 'Quinta semana' },
 ];
 
 const toErrorMessage = (error: unknown): string => {
@@ -75,6 +83,9 @@ const ProfilePage = () => {
     startTime: '09:00',
     endTime: '10:00',
     isActive: true,
+    recurrenceType: AvailabilityRecurrenceType.WEEKLY,
+    weekOfMonth: null as number | null,
+    repeatInterval: 1,
   });
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -92,6 +103,12 @@ const ProfilePage = () => {
     return [...availability].sort((a, b) => {
       const daySort = dayOrder[a.dayOfWeek] - dayOrder[b.dayOfWeek];
       if (daySort !== 0) return daySort;
+      if (a.recurrenceType !== b.recurrenceType) {
+        return a.recurrenceType === AvailabilityRecurrenceType.WEEKLY ? -1 : 1;
+      }
+      const weekA = a.weekOfMonth ?? 0;
+      const weekB = b.weekOfMonth ?? 0;
+      if (weekA !== weekB) return weekA - weekB;
       return a.startTime.localeCompare(b.startTime);
     });
   }, [availability]);
@@ -139,8 +156,15 @@ const ProfilePage = () => {
   };
 
   const handleAvailabilityFieldChange = (
-    field: 'dayOfWeek' | 'startTime' | 'endTime' | 'isActive',
-    value: string | boolean
+    field:
+      | 'dayOfWeek'
+      | 'startTime'
+      | 'endTime'
+      | 'isActive'
+      | 'recurrenceType'
+      | 'weekOfMonth'
+      | 'repeatInterval',
+    value: string | boolean | number | null
   ) => {
     setAvailabilityForm((prev) => ({ ...prev, [field]: value }));
   };
@@ -159,6 +183,9 @@ const ProfilePage = () => {
       startTime: '09:00',
       endTime: '10:00',
       isActive: true,
+      recurrenceType: AvailabilityRecurrenceType.WEEKLY,
+      weekOfMonth: null,
+      repeatInterval: 1,
     });
   };
 
@@ -170,6 +197,9 @@ const ProfilePage = () => {
       startTime: item.startTime,
       endTime: item.endTime,
       isActive: item.isActive,
+      recurrenceType: item.recurrenceType || AvailabilityRecurrenceType.WEEKLY,
+      weekOfMonth: item.weekOfMonth ?? null,
+      repeatInterval: item.repeatInterval || 1,
     });
     setAvailabilityError(null);
     setAvailabilitySuccess(null);
@@ -202,6 +232,14 @@ const ProfilePage = () => {
       setAvailabilityError('La hora de inicio debe ser menor que la hora de fin');
       return;
     }
+    if (availabilityForm.recurrenceType === AvailabilityRecurrenceType.MONTHLY && !availabilityForm.weekOfMonth) {
+      setAvailabilityError('Para recurrencia mensual debes seleccionar semana del mes');
+      return;
+    }
+    if (!Number.isInteger(availabilityForm.repeatInterval) || availabilityForm.repeatInterval < 1) {
+      setAvailabilityError('El intervalo de repeticion debe ser un entero >= 1');
+      return;
+    }
 
     setAvailabilitySaving(true);
     try {
@@ -224,6 +262,12 @@ const ProfilePage = () => {
               startTime: availabilityForm.startTime,
               endTime: availabilityForm.endTime,
               isActive: availabilityForm.isActive,
+              recurrenceType: availabilityForm.recurrenceType,
+              weekOfMonth:
+                availabilityForm.recurrenceType === AvailabilityRecurrenceType.MONTHLY
+                  ? availabilityForm.weekOfMonth
+                  : null,
+              repeatInterval: availabilityForm.repeatInterval,
             });
             if (response.data) createdItems.push(response.data);
           } catch (error) {
@@ -363,6 +407,27 @@ const ProfilePage = () => {
               </FormControl>
             )}
 
+            <FormControl fullWidth>
+              <InputLabel id="availability-recurrence-label">Recurrencia</InputLabel>
+              <Select
+                labelId="availability-recurrence-label"
+                label="Recurrencia"
+                value={availabilityForm.recurrenceType}
+                onChange={(event) => {
+                  const next = event.target.value as AvailabilityRecurrenceType;
+                  handleAvailabilityFieldChange('recurrenceType', next);
+                  if (next === AvailabilityRecurrenceType.WEEKLY) {
+                    handleAvailabilityFieldChange('weekOfMonth', null);
+                  } else if (!availabilityForm.weekOfMonth) {
+                    handleAvailabilityFieldChange('weekOfMonth', 1);
+                  }
+                }}
+              >
+                <MenuItem value={AvailabilityRecurrenceType.WEEKLY}>Semanal</MenuItem>
+                <MenuItem value={AvailabilityRecurrenceType.MONTHLY}>Mensual</MenuItem>
+              </Select>
+            </FormControl>
+
             {(availabilityPattern === 'single' || editingAvailabilityId) && (
               <FormControl fullWidth>
                 <InputLabel id="availability-day-label">Día de la semana</InputLabel>
@@ -397,6 +462,33 @@ const ProfilePage = () => {
                 fullWidth
                 InputLabelProps={{ shrink: true }}
                 inputProps={{ step: 300 }}
+              />
+            </Stack>
+
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+              {availabilityForm.recurrenceType === AvailabilityRecurrenceType.MONTHLY && (
+                <FormControl fullWidth>
+                  <InputLabel id="availability-week-label">Semana del mes</InputLabel>
+                  <Select
+                    labelId="availability-week-label"
+                    label="Semana del mes"
+                    value={availabilityForm.weekOfMonth ?? 1}
+                    onChange={(event) => handleAvailabilityFieldChange('weekOfMonth', Number(event.target.value))}
+                  >
+                    {WEEK_OF_MONTH_OPTIONS.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              )}
+
+              <TextField
+                label={availabilityForm.recurrenceType === AvailabilityRecurrenceType.MONTHLY ? 'Cada N meses' : 'Cada N semanas'}
+                type="number"
+                value={availabilityForm.repeatInterval}
+                onChange={(event) => handleAvailabilityFieldChange('repeatInterval', Number(event.target.value || 1))}
+                fullWidth
+                inputProps={{ min: 1, step: 1 }}
               />
             </Stack>
 
@@ -455,12 +547,22 @@ const ProfilePage = () => {
                 <ListItemText
                   primary={`${DAY_OF_WEEK_LABELS[item.dayOfWeek]} · ${item.startTime} - ${item.endTime}`}
                   secondary={
-                    <Chip
-                      size="small"
-                      label={item.isActive ? 'Activo' : 'Inactivo'}
-                      color={item.isActive ? 'success' : 'default'}
-                      sx={{ mt: 1 }}
-                    />
+                    <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+                      <Chip
+                        size="small"
+                        label={
+                          item.recurrenceType === AvailabilityRecurrenceType.MONTHLY
+                            ? `${WEEK_OF_MONTH_OPTIONS.find((w) => w.value === (item.weekOfMonth ?? 1))?.label || 'Semana'} · cada ${item.repeatInterval} mes(es)`
+                            : `Semanal · cada ${item.repeatInterval} semana(s)`
+                        }
+                        color="info"
+                      />
+                      <Chip
+                        size="small"
+                        label={item.isActive ? 'Activo' : 'Inactivo'}
+                        color={item.isActive ? 'success' : 'default'}
+                      />
+                    </Stack>
                   }
                 />
               </ListItem>
