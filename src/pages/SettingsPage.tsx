@@ -5,6 +5,7 @@ import {
   School as SchoolIcon, 
   EventNote as EventIcon, 
   MeetingRoom as RoomIcon, 
+  Group as GroupIcon,
   AdminPanelSettings as RoleIcon,
   Assessment as AssessmentIcon,
   ChevronRight as ChevronRightIcon
@@ -53,6 +54,15 @@ const SettingsPage = () => {
       path: '/admin/classrooms',
       permission: 'CLASSROOMS',
       color: theme.palette.warning.main
+    },
+    {
+      id: 'classes',
+      title: 'Clases',
+      description: 'Grupos y niveles escolares',
+      icon: <GroupIcon fontSize="large" />,
+      path: '/admin/classes',
+      permission: 'CLASSROOMS',
+      color: theme.palette.warning.dark
     },
     {
       id: 'roles',

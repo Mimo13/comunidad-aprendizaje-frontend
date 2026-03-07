@@ -28,6 +28,7 @@ interface ActivityFormModalProps {
   masterData: {
     subjects: any[];
     classrooms: any[];
+    classes: any[];
     timeSlots: any[];
     teachers: any[];
   };
@@ -52,6 +53,7 @@ const ActivityFormModal: React.FC<ActivityFormModalProps> = ({
     endTime: '',
     subject: '',
     classroom: '',
+    classGroup: '',
     maxHelpers: 1,
     teacherName: '',
   });
@@ -72,6 +74,7 @@ const ActivityFormModal: React.FC<ActivityFormModalProps> = ({
           endTime: end.format('HH:mm'),
           subject: activityToEdit.subject,
           classroom: activityToEdit.classroom,
+          classGroup: activityToEdit.classGroup || '',
           maxHelpers: activityToEdit.maxHelpers,
           teacherName: activityToEdit.teacherName || '',
         });
@@ -86,6 +89,7 @@ const ActivityFormModal: React.FC<ActivityFormModalProps> = ({
           endTime: '',
           subject: '',
           classroom: '',
+          classGroup: '',
           maxHelpers: 1,
           teacherName: '',
         });
@@ -115,6 +119,7 @@ const ActivityFormModal: React.FC<ActivityFormModalProps> = ({
     if (form.startTime >= form.endTime) return 'La hora de inicio debe ser anterior a la hora de fin';
     if (!form.subject.trim()) return 'La asignatura es obligatoria';
     if (!form.classroom.trim()) return 'El aula es obligatoria';
+    if (!form.classGroup.trim()) return 'La clase es obligatoria';
     if (!form.maxHelpers || form.maxHelpers < 1) return 'El número de colaboradores debe ser al menos 1';
     return null;
   };
@@ -283,6 +288,24 @@ const ActivityFormModal: React.FC<ActivityFormModalProps> = ({
                 {masterData.classrooms.map((classroom) => (
                   <MenuItem key={classroom.id} value={classroom.name}>
                     {classroom.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <FormControl fullWidth required>
+              <InputLabel id="class-group-label">Clase</InputLabel>
+              <Select
+                labelId="class-group-label"
+                label="Clase"
+                name="classGroup"
+                value={form.classGroup || ''}
+                onChange={handleChange}
+              >
+                {masterData.classes.map((entry) => (
+                  <MenuItem key={entry.id} value={entry.name}>
+                    {entry.name}
                   </MenuItem>
                 ))}
               </Select>

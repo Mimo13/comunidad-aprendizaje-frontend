@@ -465,6 +465,21 @@ export const classroomService = {
     apiClient.delete(`/classrooms/${id}`).then(res => res.data),
 };
 
+// ===== SERVICIOS DE CLASES (GRUPOS) =====
+export const classService = {
+  getAllClasses: (): Promise<ApiResponse<any[]>> =>
+    apiClient.get('/classes').then(res => res.data),
+
+  createClass: (data: { name: string }): Promise<ApiResponse<any>> =>
+    apiClient.post('/classes', data).then(res => res.data),
+
+  updateClass: (id: string, data: { name: string }): Promise<ApiResponse<any>> =>
+    apiClient.put(`/classes/${id}`, data).then(res => res.data),
+
+  deleteClass: (id: string): Promise<ApiResponse> =>
+    apiClient.delete(`/classes/${id}`).then(res => res.data),
+};
+
 // ===== SERVICIOS DE ROLES =====
 export const roleService = {
   getAllRoles: (): Promise<ApiResponse<any[]>> =>

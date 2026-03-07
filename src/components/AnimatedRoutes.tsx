@@ -24,6 +24,7 @@ const AdminUsersPage = lazy(() => import('@/pages/admin/AdminUsersPage'));
 const AdminSubjectsPage = lazy(() => import('@/pages/admin/AdminSubjectsPage'));
 const AdminHolidaysPage = lazy(() => import('@/pages/admin/AdminHolidaysPage'));
 const AdminClassroomsPage = lazy(() => import('@/pages/admin/AdminClassroomsPage'));
+const AdminClassesPage = lazy(() => import('@/pages/admin/AdminClassesPage'));
 const AdminRolesPage = lazy(() => import('@/pages/admin/AdminRolesPage'));
 const AdminStatsPage = lazy(() => import('@/pages/admin/AdminStatsPage'));
 const ReportsPage = lazy(() => import('@/pages/admin/ReportsPage'));
@@ -63,6 +64,7 @@ const AnimatedRoutes = () => {
         import('@/pages/admin/AdminSubjectsPage'),
         import('@/pages/admin/AdminHolidaysPage'),
         import('@/pages/admin/AdminClassroomsPage'),
+        import('@/pages/admin/AdminClassesPage'),
         import('@/pages/admin/AdminRolesPage'),
         import('@/pages/admin/AdminStatsPage'),
         import('@/pages/admin/ReportsPage'),
@@ -115,6 +117,7 @@ const AnimatedRoutes = () => {
               <Route path="admin/subjects" element={<AdminSubjectsPage />} />
               <Route path="admin/holidays" element={<AdminHolidaysPage />} />
               <Route path="admin/classrooms" element={<AdminClassroomsPage />} />
+              <Route path="admin/classes" element={<AdminClassesPage />} />
               <Route path="admin/roles" element={<AdminRolesPage />} />
               <Route path="admin/stats" element={<AdminStatsPage />} />
               <Route path="admin/reports" element={<ReportsPage />} />

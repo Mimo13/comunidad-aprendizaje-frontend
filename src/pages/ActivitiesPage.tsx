@@ -4,7 +4,7 @@ import type { SelectChangeEvent } from '@mui/material/Select';
 import { Add as AddIcon, Refresh as RefreshIcon, FilterAlt as FilterAltIcon, Clear as ClearIcon, ViewList as ViewListIcon, CalendarMonth as CalendarIcon, Download as DownloadIcon } from '@mui/icons-material';
 import { DatePicker } from '@mui/x-date-pickers';
 import dayjs, { Dayjs } from 'dayjs';
-import { activityService, enrollmentService, subjectService, classroomService, timeSlotService, holidayService, userService } from '@/services/api';
+import { activityService, enrollmentService, subjectService, classroomService, classService, timeSlotService, holidayService, userService } from '@/services/api';
 import { ActivityWithEnrollments, ACTIVITY_STATUS_LABELS, ActivityStatus, ActivityFilters, Holiday } from '@/types';
 import { usePermissions } from '@/stores/authStore';
 import EnrollmentDialog from '@/components/EnrollmentDialog';
@@ -28,6 +28,7 @@ const ActivitiesPage = () => {
   // Datos maestros para desplegables
   const [availableSubjects, setAvailableSubjects] = useState<any[]>([]);
   const [availableClassrooms, setAvailableClassrooms] = useState<any[]>([]);
+  const [availableClasses, setAvailableClasses] = useState<any[]>([]);
   const [availableTimeSlots, setAvailableTimeSlots] = useState<any[]>([]);
   const [availableTeachers, setAvailableTeachers] = useState<any[]>([]);
   const [holidays, setHolidays] = useState<Holiday[]>([]);
@@ -72,9 +73,10 @@ const ActivitiesPage = () => {
 
   const loadMasterData = async () => {
     try {
-      const [subjectsRes, classroomsRes, timeSlotsRes, holidaysRes, teachersRes] = await Promise.all([
+      const [subjectsRes, classroomsRes, classesRes, timeSlotsRes, holidaysRes, teachersRes] = await Promise.all([
         subjectService.getAllSubjects(),
         classroomService.getAllClassrooms(),
+        classService.getAllClasses(),
         timeSlotService.getAllTimeSlots(),
         holidayService.getHolidays(),
         userService.getAllUsers({ roles: ['PROFESOR', 'DIRECTIVA'] })
@@ -85,6 +87,9 @@ const ActivitiesPage = () => {
       }
       if (classroomsRes.success && classroomsRes.data) {
         setAvailableClassrooms(classroomsRes.data);
+      }
+      if (classesRes.success && classesRes.data) {
+        setAvailableClasses(classesRes.data);
       }
       if (timeSlotsRes.success && timeSlotsRes.data) {
         setAvailableTimeSlots(timeSlotsRes.data);
@@ -517,6 +522,7 @@ const ActivitiesPage = () => {
         masterData={{
           subjects: availableSubjects,
           classrooms: availableClassrooms,
+          classes: availableClasses,
           timeSlots: availableTimeSlots,
           teachers: availableTeachers
         }}

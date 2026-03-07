@@ -60,6 +60,7 @@ export interface Activity {
   endDate?: string;
   subject: string;
   classroom: string;
+  classGroup?: string;
   maxHelpers: number;
   teacherName?: string;
   status: ActivityStatus;
@@ -182,6 +183,7 @@ export interface ActivityForm {
   endTime?: string;   // Mantener como opcional por compatibilidad
   subject: string;
   classroom: string;
+  classGroup: string;
   maxHelpers: number;
   teacherName?: string;
 }

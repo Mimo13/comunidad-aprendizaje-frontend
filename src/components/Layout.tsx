@@ -31,10 +31,11 @@ const routeIndices: Record<string, number> = {
   '/admin/users': 10,
   '/admin/subjects': 11,
   '/admin/classrooms': 12,
-  '/admin/holidays': 13,
-  '/admin/roles': 14,
-  '/admin/stats': 15,
-  '/admin/reports': 16
+  '/admin/classes': 13,
+  '/admin/holidays': 14,
+  '/admin/roles': 15,
+  '/admin/stats': 16,
+  '/admin/reports': 17
 };
 
 const Layout = () => {
