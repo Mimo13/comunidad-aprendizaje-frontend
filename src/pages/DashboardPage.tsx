@@ -18,6 +18,8 @@ const DashboardPage = () => {
   const canViewAvailabilityWidget = canAccess('AVAILABILITY_WIDGET');
   const canViewHeatmapWidget = canAccess('ACTIVITY_HEATMAP_WIDGET');
   const canViewActivityChartWidget = canAccess('ACTIVITY_CHART_WIDGET');
+  const hasAnySecondaryWidget =
+    canViewHeatmapWidget || canViewAvailabilityWidget || canViewActivityChartWidget;
 
   useEffect(() => {
     // Comprobar si las notificaciones están activas
@@ -85,20 +87,28 @@ const DashboardPage = () => {
       )}
       */}
 
-      <Grid container spacing={3}>
+      <Grid container spacing={3} justifyContent={hasAnySecondaryWidget ? 'flex-start' : 'center'}>
         {/* Schedule Widget (Main Focus) */}
-        <Grid item xs={12} md={5} lg={4}>
+        <Grid
+          item
+          xs={12}
+          md={hasAnySecondaryWidget ? 5 : 8}
+          lg={hasAnySecondaryWidget ? 4 : 6}
+          sx={hasAnySecondaryWidget ? undefined : { mx: 'auto' }}
+        >
           <ScheduleWidget />
         </Grid>
 
         {/* Stats Widget */}
-        <Grid item xs={12} md={7} lg={8}>
-          <Box display="flex" flexDirection="column" gap={3}>
-            {canViewHeatmapWidget && <ActivityHeatmapWidget />}
-            {canViewAvailabilityWidget && <AvailabilityOverviewWidget />}
-            {canViewActivityChartWidget && <ActivityChartWidget />}
-          </Box>
-        </Grid>
+        {hasAnySecondaryWidget && (
+          <Grid item xs={12} md={7} lg={8}>
+            <Box display="flex" flexDirection="column" gap={3}>
+              {canViewHeatmapWidget && <ActivityHeatmapWidget />}
+              {canViewAvailabilityWidget && <AvailabilityOverviewWidget />}
+              {canViewActivityChartWidget && <ActivityChartWidget />}
+            </Box>
+          </Grid>
+        )}
       </Grid>
     </Box>
   );
