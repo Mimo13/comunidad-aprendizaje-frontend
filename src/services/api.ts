@@ -88,6 +88,14 @@ const processQueue = (error: any, token: string | null = null) => {
   failedQueue = [];
 };
 
+const isErrorPagePath = (path: string): boolean => path.startsWith('/error/');
+
+const redirectToErrorPage = (path: string) => {
+  if (typeof window === 'undefined') return;
+  if (isErrorPagePath(window.location.pathname)) return;
+  window.location.href = path;
+};
+
 // Response interceptor - manejo de errores globales
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => {
@@ -98,6 +106,15 @@ apiClient.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config;
+
+    if (!error.response) {
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        redirectToErrorPage('/error/offline');
+      } else {
+        redirectToErrorPage('/error/500');
+      }
+      return Promise.reject(error);
+    }
 
     // Evitar loop infinito si falla el refresh token
     if (originalRequest.url.includes('/auth/refresh-token')) {
@@ -154,6 +171,16 @@ apiClient.interceptors.response.use(
         isRefreshing = false;
       }
     }
+
+    if (error.response?.status === 403) {
+      redirectToErrorPage('/error/403');
+      return Promise.reject(error);
+    }
+
+    if (error.response?.status >= 500) {
+      redirectToErrorPage('/error/500');
+      return Promise.reject(error);
+    }
     
     console.error('❌ API Error:', error.response?.data || error.message);
     return Promise.reject(error);
@@ -166,7 +193,7 @@ const handleLogout = async () => {
   localStorage.removeItem('auth-store');
   
   if (window.location.pathname !== '/login' && window.location.pathname !== '/register' && !window.location.pathname.includes('/reset-password')) {
-    window.location.href = '/login';
+    window.location.href = '/error/401';
   }
 };
 

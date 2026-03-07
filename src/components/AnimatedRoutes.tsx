@@ -18,6 +18,11 @@ const ActivitiesPage = lazy(() => import('@/pages/ActivitiesPage'));
 const ProfilePage = lazy(() => import('@/pages/ProfilePage'));
 const NotificationsPage = lazy(() => import('@/pages/NotificationsPage'));
 const SettingsPage = lazy(() => import('@/pages/SettingsPage'));
+const Error401Page = lazy(() => import('@/pages/errors/Error401Page'));
+const Error403Page = lazy(() => import('@/pages/errors/Error403Page'));
+const Error404Page = lazy(() => import('@/pages/errors/Error404Page'));
+const Error500Page = lazy(() => import('@/pages/errors/Error500Page'));
+const ErrorOfflinePage = lazy(() => import('@/pages/errors/ErrorOfflinePage'));
 
 // Lazy load de páginas de admin (las más pesadas)
 const AdminUsersPage = lazy(() => import('@/pages/admin/AdminUsersPage'));
@@ -96,6 +101,11 @@ const AnimatedRoutes = () => {
             />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+            <Route path="error/401" element={<Error401Page />} />
+            <Route path="error/403" element={<Error403Page />} />
+            <Route path="error/404" element={<Error404Page />} />
+            <Route path="error/500" element={<Error500Page />} />
+            <Route path="error/offline" element={<ErrorOfflinePage />} />
             <Route 
               path="/register" 
               element={
@@ -122,13 +132,13 @@ const AnimatedRoutes = () => {
               <Route path="admin/stats" element={<AdminStatsPage />} />
               <Route path="admin/reports" element={<ReportsPage />} />
 
-              <Route path="*" element={<Navigate to="/dashboard" replace />} />
+              <Route path="*" element={<Navigate to="/error/404" replace />} />
             </Route>
             
             {/* Ruta por defecto */}
             <Route 
               path="*" 
-              element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />} 
+              element={<Navigate to="/error/404" replace />} 
             />
           </Routes>
         </Suspense>

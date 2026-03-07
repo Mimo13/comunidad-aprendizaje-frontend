@@ -85,13 +85,40 @@ window.addEventListener('unhandledrejection', (event) => {
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <Sentry.ErrorBoundary fallback={({ error, resetError }: { error: unknown; resetError: () => void }) => (
-      <div style={{ padding: '20px', textAlign: 'center' }}>
-        <h1>¡Ups! Algo salió mal</h1>
-        <p>Lo sentimos, ha ocurrido un error inesperado.</p>
-        <details style={{ whiteSpace: 'pre-wrap' }}>
-          {import.meta.env.MODE === 'development' && String(error)}
-        </details>
-        <button onClick={resetError}>Recargar página</button>
+      <div
+        style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '24px',
+          background: '#073A4B',
+          color: '#E6F2F6',
+        }}
+      >
+        <div
+          style={{
+            width: '100%',
+            maxWidth: '640px',
+            background: '#0A4D5A',
+            border: '1px solid rgba(255,255,255,0.12)',
+            borderRadius: '16px',
+            padding: '28px',
+          }}
+        >
+          <p style={{ margin: 0, letterSpacing: 2, opacity: 0.8 }}>ERROR 500</p>
+          <h1 style={{ marginTop: 8, marginBottom: 8 }}>Error inesperado</h1>
+          <p style={{ marginTop: 0, marginBottom: 16, opacity: 0.9 }}>
+            Ha ocurrido un fallo inesperado en la aplicacion. Puedes reintentar o volver al inicio.
+          </p>
+          {import.meta.env.MODE === 'development' ? (
+            <pre style={{ whiteSpace: 'pre-wrap', opacity: 0.85 }}>{String(error)}</pre>
+          ) : null}
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            <button onClick={() => (window.location.href = '/dashboard')}>Volver al inicio</button>
+            <button onClick={resetError}>Reintentar</button>
+          </div>
+        </div>
       </div>
     )}>
       <App />
