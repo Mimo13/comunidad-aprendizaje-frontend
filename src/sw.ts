@@ -5,13 +5,11 @@ import { registerRoute } from 'workbox-routing'
 import { StaleWhileRevalidate, NetworkFirst, CacheFirst } from 'workbox-strategies'
 import { ExpirationPlugin } from 'workbox-expiration'
 import { CacheableResponsePlugin } from 'workbox-cacheable-response'
-import { clientsClaim } from 'workbox-core'
 
 declare let self: ServiceWorkerGlobalScope
 
-// Activar inmediatamente el nuevo SW y tomar control de los clientes
-self.skipWaiting()
-clientsClaim()
+// No forzar takeover inmediato del SW para evitar inconsistencias de chunks
+// en sesiones activas (puede provocar recargas inesperadas en rutas lazy).
 
 // Workbox injecta el manifest en build (injectManifest)
 precacheAndRoute(self.__WB_MANIFEST)

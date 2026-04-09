@@ -32,20 +32,14 @@ Sentry.init({
 // Configurar Service Worker para PWA solo en producción
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   registerSW({
-    immediate: true,
     onRegistered(r?: ServiceWorkerRegistration) {
       console.log('✅ Service Worker registrado correctamente:', r);
-      if (r) {
-        r.update().catch(err => console.error('Error al actualizar SW:', err));
-      }
     },
     onRegisterError(error: any) {
       console.error('❌ Error al registrar Service Worker:', error);
     },
     onNeedRefresh() {
-      if (confirm('Nueva versión disponible. ¿Recargar la aplicación?')) {
-        window.location.reload();
-      }
+      console.info('Nueva versión disponible. Se aplicará al cerrar y abrir la app.');
     },
     onOfflineReady() {
       console.log('App lista para trabajar offline');
