@@ -16,6 +16,13 @@ const isRetriableGatewayStatus = (status: number): boolean =>
 
 const canHaveBody = (method: string): boolean => !['GET', 'HEAD'].includes(method.toUpperCase());
 
+const isSpaNavigationRequest = (request: Request): boolean => {
+  if (request.method !== 'GET') return false;
+  if (request.mode === 'navigate') return true;
+  const accept = request.headers.get('accept') || '';
+  return accept.includes('text/html');
+};
+
 const fetchWithFallback = async (
   primaryUrl: string,
   request: Request,
@@ -109,7 +116,9 @@ export default {
 
     try {
       const assetResp = await env.ASSETS.fetch(request);
-      if (assetResp.status === 404) {
+      // Solo usar fallback a index.html en navegaciones SPA.
+      // Si faltan chunks JS/CSS/imagenes debemos devolver 404 real.
+      if (assetResp.status === 404 && isSpaNavigationRequest(request)) {
         const indexUrl = new URL('/index.html', url.origin);
         return env.ASSETS.fetch(new Request(indexUrl.toString(), request));     
       }
