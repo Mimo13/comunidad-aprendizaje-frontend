@@ -1,4 +1,4 @@
-import { Box, IconButton, useTheme, Typography } from '@mui/material';
+import { Box, useTheme, Typography } from '@mui/material';
 import { 
   Home as HomeIcon, 
   Event as EventIcon, 
@@ -94,13 +94,33 @@ const BottomMenu = ({ unreadCount = 0 }: BottomMenuProps) => {
   // Ancho arbitrario grande para el viewBox, que se adaptará
   const viewBoxWidth = 500; 
   
-  const itemWidth = viewBoxWidth / visibleItems.length;
+  const itemCount = Math.max(visibleItems.length, 1);
+  const safeActiveIndex = Number.isFinite(activeIndex)
+    ? Math.min(Math.max(activeIndex, 0), visibleItems.length - 1)
+    : 0;
+  const itemWidth = viewBoxWidth / itemCount;
   // Ajustamos el ancho de la curva relativo al ancho del item
   const curveWidth = 80; // Ancho fijo en unidades de usuario para la curva (aprox 80px)
   const curveDepth = 35; // Profundidad de la curva
   
   // Calcular el path del SVG
   // La curva es un "hueco" hacia abajo donde se asienta la bola
+  const getFlatPath = () => {
+    const cornerRadius = 15;
+    return `
+      M ${cornerRadius} 0
+      L ${viewBoxWidth - cornerRadius} 0
+      Q ${viewBoxWidth} 0, ${viewBoxWidth} ${cornerRadius}
+      L ${viewBoxWidth} ${viewBoxHeight - cornerRadius}
+      Q ${viewBoxWidth} ${viewBoxHeight}, ${viewBoxWidth - cornerRadius} ${viewBoxHeight}
+      L ${cornerRadius} ${viewBoxHeight}
+      Q 0 ${viewBoxHeight}, 0 ${viewBoxHeight - cornerRadius}
+      L 0 ${cornerRadius}
+      Q 0 0, ${cornerRadius} 0
+      Z
+    `;
+  };
+
   const getPath = (index: number) => {
     const safeIndex = Math.min(Math.max(index, 0), visibleItems.length - 1);
     const center = (safeIndex * itemWidth) + (itemWidth / 2);
@@ -112,7 +132,7 @@ const BottomMenu = ({ unreadCount = 0 }: BottomMenuProps) => {
     
     // Puntos de control para la curva Bezier cúbica del socket
     
-    return `
+    const d = `
       M ${cornerRadius} 0 
       L ${startX} 0 
       C ${startX + (curveWidth * 0.25)} 0, ${center - (curveWidth * 0.25)} ${curveDepth}, ${center} ${curveDepth} 
@@ -127,7 +147,12 @@ const BottomMenu = ({ unreadCount = 0 }: BottomMenuProps) => {
       Q 0 0, ${cornerRadius} 0
       Z
     `;
+
+    // Evitar valores inválidos que rompen el parser SVG.
+    return d.includes('NaN') || d.includes('undefined') ? getFlatPath() : d;
   };
+
+  const activePath = getPath(safeActiveIndex);
 
   return ReactDOM.createPortal(
     <Box
@@ -171,22 +196,13 @@ const BottomMenu = ({ unreadCount = 0 }: BottomMenuProps) => {
             overflow: 'visible'
           }}
         >
-          <motion.path
-            d={getPath(activeIndex)}
-            fill={theme.palette.background.paper}
-            animate={{ d: getPath(activeIndex) }}
-            transition={{ 
-              type: "spring", 
-              stiffness: 350, 
-              damping: 30 
-            }}
-          />
+          <path d={activePath} fill={theme.palette.background.paper} />
         </svg>
 
         {/* Bola rodante (Indicador activo) */}
         <motion.div
           animate={{
-            left: `${(activeIndex * (100 / visibleItems.length)) + ((100 / visibleItems.length) / 2)}%`,
+            left: `${(safeActiveIndex * (100 / itemCount)) + ((100 / itemCount) / 2)}%`,
           }}
           transition={{
             type: "spring",
@@ -211,13 +227,13 @@ const BottomMenu = ({ unreadCount = 0 }: BottomMenuProps) => {
         >
           {/* Icono dentro de la bola con rotación */}
           <motion.div
-            key={activeIndex} 
+            key={safeActiveIndex} 
             initial={{ rotate: -180, scale: 0.5, opacity: 0 }}
             animate={{ rotate: 0, scale: 1, opacity: 1 }}
             transition={{ duration: 0.4 }}
             style={{ color: '#073A4B', display: 'flex' }}
           >
-            {visibleItems[activeIndex]?.icon}
+            {visibleItems[safeActiveIndex]?.icon}
           </motion.div>
         </motion.div>
 
@@ -235,7 +251,7 @@ const BottomMenu = ({ unreadCount = 0 }: BottomMenuProps) => {
           }}
         >
           {visibleItems.map((item, index) => {
-            const isActive = index === activeIndex;
+            const isActive = index === safeActiveIndex;
             return (
               <StyledTooltip key={item.id} title={item.label || ''} placement="top">
                 <Box
